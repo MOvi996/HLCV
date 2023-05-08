@@ -6,11 +6,17 @@ from .image_filtering import gaussderiv
 def normalized_histogram(img_gray, num_bins):
   assert len(img_gray.shape) == 2, 'image dimension mismatch'
   assert img_gray.dtype == 'float', 'incorrect image type'
-
+  bins = np.linspace(0,255,num_bins+1, endpoint=True, dtype=np.float32)
   ### Your code here
-
-  raise NotImplementedError
-
+  hists = np.zeros(num_bins)
+  step_size = 255/(num_bins)
+  
+  for x in range(img_gray.shape[0]):
+    for y in range(img_gray.shape[1]):
+      bin_number = int((img_gray[x][y] / step_size))
+      hists[bin_number] += 1
+      
+  hists /= np.sum(hists)
   return hists, bins
 
 
@@ -20,18 +26,19 @@ def rgb_hist(img_color, num_bins):
 
   # define a 3D histogram  with "num_bins^3" number of entries
   hists = np.zeros((num_bins, num_bins, num_bins))
-
+  step_size = 255/(num_bins)
+  
   # execute the loop for each pixel in the image 
   for i in range(img_color.shape[0]):
       for j in range(img_color.shape[1]):
           # increment a histogram bin which corresponds to the value of pixel i,j; h(R,G,B)
           ### Your code here
-          pass
-
+          bin_number = (img_color[i][j]/step_size).astype(np.int32)
+          hists[bin_number[0], bin_number[1], bin_number[2]] += 1
+          
   # normalize the histogram such that its integral (sum) is equal 1
   ### Your code here
-  raise NotImplementedError
-
+  hists /= np.sum(hists)
   hists = hists.reshape(hists.size)
   return hists
 
@@ -54,9 +61,21 @@ def rg_hist(img_color, num_bins):
   hists = np.zeros((num_bins, num_bins))
   
   # Your code here
+  r = img_color[:,:,0]/img_color.sum(axis=2)
+  g = img_color[:,:,1]/img_color.sum(axis=2)
+  step_size = 1/(num_bins)
+  for i in range(img_color.shape[0]):
+      for j in range(img_color.shape[1]):
+          ### Your code here
+          r_bin = int(r[i][j]/step_size)
+          g_bin = int(g[i][j]/step_size)
+          if r_bin == num_bins:
+            r_bin-=1
+          if g_bin == num_bins:
+            g_bin-=1
+          hists[r_bin, g_bin] += 1
   
-  raise NotImplementedError
-
+  hists/=np.sum(hists)
   hists = hists.reshape(hists.size)
   return hists
 
@@ -77,40 +96,61 @@ def dxdy_hist(img_gray, num_bins):
 
   assert len(img_gray.shape) == 2, 'image dimension mismatch'
   assert img_gray.dtype == 'float', 'incorrect image type'
-
+  # print(np.max(img_gray), np.min(img_gray))
   # compute the first derivatives
-  
-
-  # quantize derivatives to "num_bins" number of values
+  imgdx, imgdy = gaussderiv(img_gray, sigma=7)
+  # print(np.min(imgdx), np.max(imgdx))
+  # # quantize derivatives to "num_bins" number of values
   # define a 2D histogram  with "num_bins^2" number of entries
   hists = np.zeros((num_bins, num_bins))
-
-  raise NotImplementedError
+  # step_size = max(int(imgdx.max()-imgdx.min()),int(imgdy.max()-imgdy.min()))/num_bins
+  step_size = 60/num_bins
   
+  for i in range(imgdx.shape[0]):
+      for j in range(imgdx.shape[1]):
+          ### Your code here
+          dx_bin = int(imgdx[i][j]/step_size)
+          dy_bin = int(imgdy[i][j]/step_size)
+          # print(dx_bin, dy_bin)
+          hists[dx_bin, dy_bin] += 1
+  
+  hists/=np.sum(hists)
   hists = hists.reshape(hists.size)
   return hists
 
 
 def dist_chi2(x,y):
   """ Compute chi2 distance between x and y """
-  
   # your code here    
-  raise NotImplementedError
+
+  epsilon = 1e-09
+  dist =  (((x - y)**2) / (x + y + epsilon)).sum()
+  
+  return dist
+  
+  
 
 
 def dist_l2(x,y):
   """Compute l2 distance between x and y"""
       
   # your code here    
-  raise NotImplementedError
+  return np.sqrt(np.sum(np.square(x - y)))
+  
+
 
 
 def dist_intersect(x,y):
 
   """Compute intersection distance between x and y. Return 1 - intersection, so that smaller values also correspond to more similart histograms"""
   
-  # your code here    
-  raise NotImplementedError
+  # your code here
+  # print(np.min(x,y))
+  dist = 0
+  for i in range(len(x)):
+    dist += min(x[i], y[i])
+  return 1 - dist
+  
 
 
 def get_dist_by_name(x, y, dist_name):
