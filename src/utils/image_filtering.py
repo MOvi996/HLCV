@@ -28,7 +28,7 @@ def gaussianfilter(img, sigma):
     outimage = signal.convolve2d(img,GG,mode='same')
 
     # convolve on y - axis
-    #outimage = signal.convolve2d(outimage,GG.T,mode='same')
+    outimage = signal.convolve2d(outimage,GG.T,mode='same')
 
     return outimage
 

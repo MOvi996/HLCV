@@ -96,7 +96,7 @@ def dxdy_hist(img_gray, num_bins):
 
   assert len(img_gray.shape) == 2, 'image dimension mismatch'
   assert img_gray.dtype == 'float', 'incorrect image type'
-  # print(np.max(img_gray), np.min(img_gray))
+  
   # compute the first derivatives
   imgdx, imgdy = gaussderiv(img_gray, sigma=7)
 
@@ -104,7 +104,7 @@ def dxdy_hist(img_gray, num_bins):
 
   ## As specified in the description, we can assume values in the range of [-30,30] for derivative images
   derivative_image  = np.clip(derivative_image, a_min= -32, a_max= 32)
-  # print(np.min(derivative_image[0]), np.min(derivati))
+  
   # quantize derivatives to "num_bins" number of values
   # define a 2D histogram  with "num_bins^2" number of entries
   hists = np.zeros((num_bins, num_bins))
@@ -117,9 +117,7 @@ def dxdy_hist(img_gray, num_bins):
           bin_number = (derivative_image[i][j] / step_size).astype(np.int32)
           bin_number = np.where(bin_number == num_bins, bin_number  - 1, bin_number)
           hists[bin_number[0], bin_number[1]] += 1
-          # print(dx_bin, dy_bin)
-          #hists[dx_bin, dy_bin] += 1
-  
+          
   hists/=np.sum(hists)
   hists = hists.reshape(hists.size)
   return hists
