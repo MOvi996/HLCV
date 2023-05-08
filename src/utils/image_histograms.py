@@ -63,17 +63,17 @@ def rg_hist(img_color, num_bins):
   # Your code here
   r = img_color[:,:,0]/img_color.sum(axis=2)
   g = img_color[:,:,1]/img_color.sum(axis=2)
+
+  rg_image = np.stack([r, g], axis= 2)
+
   step_size = 1/(num_bins)
+
   for i in range(img_color.shape[0]):
       for j in range(img_color.shape[1]):
           ### Your code here
-          r_bin = int(r[i][j]/step_size)
-          g_bin = int(g[i][j]/step_size)
-          if r_bin == num_bins:
-            r_bin-=1
-          if g_bin == num_bins:
-            g_bin-=1
-          hists[r_bin, g_bin] += 1
+          bin_number = (rg_image[i][j] / step_size).astype(np.int32)
+          bin_number = np.where(bin_number == num_bins, bin_number  - 1, bin_number)
+          hists[bin_number[0], bin_number[1]] += 1
   
   hists/=np.sum(hists)
   hists = hists.reshape(hists.size)
@@ -99,20 +99,26 @@ def dxdy_hist(img_gray, num_bins):
   # print(np.max(img_gray), np.min(img_gray))
   # compute the first derivatives
   imgdx, imgdy = gaussderiv(img_gray, sigma=7)
-  # print(np.min(imgdx), np.max(imgdx))
-  # # quantize derivatives to "num_bins" number of values
+
+  derivative_image = np.stack([imgdx, imgdy], axis= 2)
+
+  ## As specified in the description, we can assume values in the range of [-30,30] for derivative images
+  derivative_image  = np.clip(derivative_image, a_min= -32, a_max= 32)
+  # print(np.min(derivative_image[0]), np.min(derivati))
+  # quantize derivatives to "num_bins" number of values
   # define a 2D histogram  with "num_bins^2" number of entries
   hists = np.zeros((num_bins, num_bins))
-  # step_size = max(int(imgdx.max()-imgdx.min()),int(imgdy.max()-imgdy.min()))/num_bins
-  step_size = 60/num_bins
+  step_size = 64/num_bins
   
-  for i in range(imgdx.shape[0]):
-      for j in range(imgdx.shape[1]):
+
+  for i in range(derivative_image.shape[0]):
+      for j in range(derivative_image.shape[1]):
           ### Your code here
-          dx_bin = int(imgdx[i][j]/step_size)
-          dy_bin = int(imgdy[i][j]/step_size)
+          bin_number = (derivative_image[i][j] / step_size).astype(np.int32)
+          bin_number = np.where(bin_number == num_bins, bin_number  - 1, bin_number)
+          hists[bin_number[0], bin_number[1]] += 1
           # print(dx_bin, dy_bin)
-          hists[dx_bin, dy_bin] += 1
+          #hists[dx_bin, dy_bin] += 1
   
   hists/=np.sum(hists)
   hists = hists.reshape(hists.size)
@@ -129,16 +135,12 @@ def dist_chi2(x,y):
   return dist
   
   
-
-
 def dist_l2(x,y):
   """Compute l2 distance between x and y"""
       
   # your code here    
-  return np.sqrt(np.sum(np.square(x - y)))
+  return np.linalg.norm(x - y)
   
-
-
 
 def dist_intersect(x,y):
 
