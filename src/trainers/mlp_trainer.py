@@ -106,7 +106,7 @@ class MLPTrainer(BaseTrainer):
             output = self.model.forward(images)
 
             loss = self.criterion(output, labels)
-            output = torch.argmax(output, dim=1)
+            # output = torch.argmax(output, dim=1)
             loss.backward()
 
             self.optimizer.step()
@@ -169,7 +169,7 @@ class MLPTrainer(BaseTrainer):
             images = images.view(images.size(0), -1)
             output = self.model(images)
             loss = self.criterion(output, labels)
-            output = torch.argmax(output, dim=1)
+            # output = torch.argmax(output, dim=1)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 

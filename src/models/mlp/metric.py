@@ -7,7 +7,13 @@ class TopKAccuracy:
     def compute(self, output, target):
         
         correct = 0
-        correct = (output == target).sum().item()
+        _, predicted = output.topk(self.k, dim=1)
+        predicted = predicted.t()
+        target_ = target.view(1,-1)
+        
+        target_ = target_.expand_as(predicted)
+        correct = (predicted == target_)[:self.k].reshape(-1).float().sum(0)
+
         return correct / len(target)
     
     def __str__(self):
