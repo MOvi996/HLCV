@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from tqdm import tqdm
+# from tqdm import tqdm
 
 from torchvision.utils import make_grid
 from .base_trainer import BaseTrainer
@@ -83,8 +83,8 @@ class MLPTrainer(BaseTrainer):
         self.epoch_metrics.reset()
 
         self.logger.debug(f"==> Start Training Epoch {self.current_epoch}/{self.epochs}, lr={self.optimizer.param_groups[0]['lr']:.6f} ")
-
-        pbar = tqdm(total=len(self._train_loader) * self._train_loader.batch_size, bar_format='{desc}: {percentage:3.0f}% {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]')
+        
+        # pbar = tqdm(total=len(self._train_loader) * self._train_loader.batch_size, bar_format='{desc}: {percentage:3.0f}% {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]')
         
         for batch_idx, (images, labels) in enumerate(self._train_loader):
 
@@ -103,7 +103,7 @@ class MLPTrainer(BaseTrainer):
             
             images = images.view(images.size(0), -1)    # flatten the input
                 
-            output = self.model.forward(images)
+            output = self.model(images)
 
             loss = self.criterion(output, labels)
             # output = torch.argmax(output, dim=1)
@@ -111,24 +111,24 @@ class MLPTrainer(BaseTrainer):
 
             self.optimizer.step()
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
             self.writer.set_step((self.current_epoch - 1) * len(self._train_loader) + batch_idx)
             self.epoch_metrics.update('loss', loss.item())
+    
             for metric in self.metric_ftns:
                 self.epoch_metrics.update(str(metric), metric.compute(output, labels))
-
-            pbar.set_description(f"Train Epoch: {self.current_epoch} Loss: {loss.item():.6f}")
-
+            
+            # pbar.set_description(f"Train Epoch: {self.current_epoch} Loss: {loss.item():.6f}")
+            
             if batch_idx % self.log_step == 0:
                 # self.logger.debug('Train Epoch: {} Loss: {:.6f}'.format(self.current_epoch, loss.item()))
                 self.writer.add_image('input', make_grid(images.cpu(), nrow=8, normalize=True))
 
-            pbar.update(self._train_loader.batch_size)
+            # pbar.update(self._train_loader.batch_size)
 
         log_dict = self.epoch_metrics.result()
-        pbar.close()
+        # pbar.close()
         self.lr_scheduler.step() # This doesn't to anything as we have a dummy scheduler
-
+        
         self.logger.debug(f"==> Finished Epoch {self.current_epoch}/{self.epochs}.")
         
         return log_dict
@@ -152,7 +152,7 @@ class MLPTrainer(BaseTrainer):
 
         self.logger.debug(f"++> Evaluate at epoch {self.current_epoch} ...")
 
-        pbar = tqdm(total=len(loader) * loader.batch_size, bar_format='{desc}: {percentage:3.0f}% {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]')
+        # pbar = tqdm(total=len(loader) * loader.batch_size, bar_format='{desc}: {percentage:3.0f}% {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]')
 
         for batch_idx, (images, labels) in enumerate(loader):
             
@@ -178,16 +178,16 @@ class MLPTrainer(BaseTrainer):
             for metric in self.metric_ftns:
                 self.eval_metrics.update(str(metric), metric.compute(output, labels))
 
-            pbar.set_description(f"Val Loss: {loss.item():.6f}")
+            # pbar.set_description(f"Val Loss: {loss.item():.6f}")
             self.writer.add_image('input', make_grid(images.cpu(), nrow=8, normalize=True))
 
-            pbar.update(loader.batch_size)
+            # pbar.update(loader.batch_size)
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
             self.writer.add_histogram(name, p, bins='auto')
 
-        pbar.close()
+        # pbar.close()
         self.logger.debug(f"++> Evaluate epoch {self.current_epoch} Finished.")
         
         return self.eval_metrics.result()
