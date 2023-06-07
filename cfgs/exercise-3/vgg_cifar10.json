@@ -1,11 +1,13 @@
 {
     "name": "CIFAR10_VGG",
     "n_gpu": 1,
-
     "arch": {
         "type": "VGG11_bn",
         "args": {
-            "layer_config": [512, 256],
+            "layer_config": [
+                512,
+                256
+            ],
             "num_classes": 10,
             "activation": {
                 "type": "ReLU",
@@ -20,7 +22,7 @@
     },
     "data_module": {
         "type": "CIFAR10DataModule",
-        "args":{
+        "args": {
             "data_dir": "data/exercise-2",
             "batch_size": 200,
             "shuffle": true,
@@ -32,7 +34,7 @@
     },
     "optimizer": {
         "type": "Adam",
-        "args":{
+        "args": {
             "lr": 1e-3,
             "weight_decay": 1e-5
         }
@@ -41,13 +43,13 @@
     "metrics": [
         {
             "type": "TopKAccuracy",
-            "args":{
+            "args": {
                 "k": 1
             }
         },
         {
             "type": "TopKAccuracy",
-            "args":{
+            "args": {
                 "k": 3
             }
         }
@@ -63,17 +65,14 @@
     "trainer": {
         "type": "VGGTrainer",
         "args": {},
-
-        "epochs": 15,
-        
+        "epochs": 3,
         "save_dir": "saved",
         "save_period": 10,
         "eval_period": 1,
         "verbosity": 2,
-
         "monitor": "max eval_top1",
         "early_stop": 4
     },
     "tensorboard": false,
-    "wandb": true
+    "wandb": false
 }

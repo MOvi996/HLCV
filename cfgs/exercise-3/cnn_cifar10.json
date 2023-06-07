@@ -1,12 +1,18 @@
 {
     "name": "CIFAR10_CNN",
     "n_gpu": 1,
-
     "arch": {
         "type": "ConvNet",
         "args": {
             "input_size": 3,
-            "hidden_layers": [128, 512, 512, 512, 512, 512],
+            "hidden_layers": [
+                128,
+                512,
+                512,
+                512,
+                512,
+                512
+            ],
             "num_classes": 10,
             "activation": {
                 "type": "ReLU",
@@ -15,23 +21,23 @@
             "norm_layer": {
                 "type": "Identity"
             },
-            "drop_prob": 0.1
+            "drop_prob": 0.0
         }
     },
     "data_module": {
         "type": "CIFAR10DataModule",
-        "args":{
+        "args": {
             "data_dir": "data/exercise-2",
             "batch_size": 200,
             "shuffle": true,
             "heldout_split": 0.1,
-            "num_workers": 6,
+            "num_workers": 1,
             "preset_name": "CIFAR10"
         }
     },
     "optimizer": {
         "type": "Adam",
-        "args":{
+        "args": {
             "lr": 0.002,
             "weight_decay": 1e-5
         }
@@ -40,13 +46,13 @@
     "metrics": [
         {
             "type": "TopKAccuracy",
-            "args":{
+            "args": {
                 "k": 1
             }
         },
         {
             "type": "TopKAccuracy",
-            "args":{
+            "args": {
                 "k": 5
             }
         }
@@ -61,18 +67,14 @@
     "trainer": {
         "type": "CNNTrainer",
         "args": {},
-
-        "epochs": 10,
-        
+        "epochs": 3,
         "save_dir": "saved",
         "save_period": 10,
         "eval_period": 1,
         "verbosity": 2,
-
         "monitor": "max eval_top1",
         "early_stop": 0
     },
     "tensorboard": true,
     "wandb": false
-
 }
