@@ -12,6 +12,9 @@ __pycache__/
 .Python
 build/
 saved/
+condor_logs/
+wandb/
+data/exercise-2/cifar-10-batches-py/
 develop-eggs/
 dist/
 downloads/

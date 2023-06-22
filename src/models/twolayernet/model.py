@@ -302,13 +302,16 @@ class TwoLayerNetv4(TwoLayerNetv3):
             y_batch = y
 
             #########################################################################
-            # TODO: Create a random minibatch of training data and labels, storing  #
+            # Create a random minibatch of training data and labels, storing  #
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            indices = np.random.choice(X.shape[0], batch_size, replace=True)
-            X_batch = X[indices] 
-            y_batch = y[indices]
+            if batch_size > num_train:
+                rand_ind = np.random.choice(num_train, size=batch_size, replace=True)
+            else:
+                rand_ind = np.random.choice(num_train, size=batch_size, replace=False)
+            X_batch = X[rand_ind]
+            y_batch = y[rand_ind]
+            #########################################################################
             
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
