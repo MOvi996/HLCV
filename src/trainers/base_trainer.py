@@ -195,8 +195,9 @@ class BaseTrainer:
         self.logger.info("Saving checkpoint: {} ...".format(path))
         torch.save(self.model.state_dict(), path)
         self.logger.info("Checkpoint saved.")
-        raise NotImplementedError
+        torch.save(self.model.state_dict(), path)
     
+
     def load_model(self, path=None):
         """
         Loads model params from the given path.
