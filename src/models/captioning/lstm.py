@@ -12,7 +12,7 @@ class DecoderLSTM(nn.Module):
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
-        self.max_seg_length = max_seq_length
+        self.max_seq_length = max_seq_length
         
     def forward(self, features, captions, lengths):
         
@@ -38,10 +38,23 @@ class DecoderLSTM(nn.Module):
         # Note that at each step, the output is a linear transformation of the lstm hidden state
         # The output is a vector of size vocab_size
         # You can take hints from the sample_beam_search function below
-        raise NotImplementedError
+        # idx_sequences = [[[], 0.0, inputs, states]]
+
+        for _ in range(self.max_seq_length):
+            all_candidates = []
+            # for idx_seq in idx_sequences:
+            hiddens, states = self.lstm(inputs, states)
+            outputs = self.linear(hiddens.squeeze(1))
+
+            predicted_ids = torch.argmax(outputs, dim=1)
+
+            sampled_ids.append(predicted_ids.item())
+
+            inputs = self.embed(predicted_ids.unsqueeze(1))
+        
         #########################
-        return sampled_ids[0].cpu().numpy()
-    
+        return np.asarray(sampled_ids)
+        
     def sample_beam_search(self, features, beam_width=5, states=None):
         """
         Beam search approach for generating captions.
@@ -51,7 +64,7 @@ class DecoderLSTM(nn.Module):
         inputs = features.unsqueeze(1)
         idx_sequences = [[[], 0.0, inputs, states]]
         
-        for _ in range(self.max_seg_length):
+        for _ in range(self.max_seq_length):
             # Store all the potential candidates at each step
             all_candidates = []
             # Predict the next word idx for each of the top sequences
@@ -95,5 +108,16 @@ class DecoderLSTM(nn.Module):
         # Refer to utils/build_vocab.py to see how the vocab object is constructed
         # That should give you an idea on how to use the vocab object to convert word ids to words
         # Specifically, your final sentences should not contain the <start>, <pad> and <end> tokens
-        raise NotImplementedError
+        sentences = []
+
+        for caption in captions:
+            words = [vocab.idx2word[word_idx] for word_idx in caption if vocab.idx2word[word_idx] not in ['<pad>','<start>','<end>']]
+            sentence = " ".join(words)
+            sentences.append(sentence)
+        
+        if singleton:
+            return sentences[0]
+        return sentences
+        
+        # raise NotImplementedError
         #########################

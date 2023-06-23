@@ -82,8 +82,9 @@ class EncoderBlock(nn.Module):
         # Hint: There's already a `need_weights` argument for nn.MultiheadAttention forward pass. See the docs.
         
         # MHA 
-        residual = x
+        residual = input
         x = self.ln_1(input)
+        
         # x = x.permute(1,0,2)
         x, _ = self.self_attention.forward(x, x, x, need_weights = self.need_weights)
         x += residual
@@ -146,7 +147,8 @@ class Encoder(nn.Module):
         ### TODO Q1: Apply the forward pass over the Encoder.
         ## 1. Add Positional Embedding (self.pos_embedding) to the input
         ## 2. Feed it to self.layers and get the result and attention_weights
-        x = self.pos_embedding(input)
+        x = input
+        x += self.pos_embedding
         x, _ = self.layers(x)
 
         result = x
@@ -187,7 +189,7 @@ class VisionTransformer(nn.Module):
         # For example, in the figure in lecture, the image is broken 
         # into 9 non-overlapping patches.
         kernel_size = self.patch_size
-        stride = math.sqrt(self.image_size)//9
+        stride = self.patch_size
         # raise NotImplementedError
         ############################
         self.conv_proj = nn.Conv2d(
@@ -232,10 +234,9 @@ class VisionTransformer(nn.Module):
         torch._assert(w == self.image_size, f"Wrong image width! Expected {self.image_size} but got {w}!")
         n_h = h // p
         n_w = w // p
-
         # (n, c, h, w) -> (n, hidden_dim, n_h, n_w)
         x = self.conv_proj(x)
-
+        
         # (n, hidden_dim, n_h, n_w) -> (n, hidden_dim, (n_h * n_w))
         x = x.reshape(n, self.hidden_dim, n_h * n_w)
 
@@ -299,6 +300,12 @@ class VisionTransformer(nn.Module):
         # Hint: Go a few lines above to see how to take the attention token.
         # Also note that the attention of CLS token w.r.t other tokens also includes
         # its attention to itself (which should not be used for visualization)
+        # Get the attention weights for the CLS token
+        print(attention_weights.shape)
+        cls_token = attention_weights[:, 0, 1:]
+        
+        attention_map = cls_token.view(-1, 14, 14, 1)
 
-        raise NotImplementedError
+        return attention_map
+        # raise NotImplementedError
         #########################
