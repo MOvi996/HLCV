@@ -1,7 +1,10 @@
 # HLCV - High-Level Computer Vision
 
 This is a combined repository that starts from
-  - processing visual data with classical techniques and goes on to deep-learning concepts like 
+  - processing visual data with classical technique 
+  
+and goes on to deep-learning concepts like
+
   - MLPs and CNNs for object identification, 
   - Vision Transformers and CNN-LSTMs for image-captioning.  
 
